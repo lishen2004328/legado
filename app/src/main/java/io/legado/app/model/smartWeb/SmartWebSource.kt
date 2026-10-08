@@ -112,7 +112,7 @@ object SmartWebSource {
         if (text.length !in 2..100) return@filter false
         val href = a.absUrl("href")
         if (href.isBlank() || !href.startsWith("http")) return@filter false
-        Regex("(?i)(第\s*[0-9一二三四五六七八九十百千万]+\s*[章节话回卷]|chapter\s*[0-9]+|番外|楔子|序章|正文)").containsMatchIn(text) ||
+        Regex("(?i)(第\\s*[0-9一二三四五六七八九十百千万]+\\s*[章节话回卷]|chapter\s*[0-9]+|番外|楔子|序章|正文)").containsMatchIn(text) ||
             Regex("(?i)(chapter|chap|read|book|novel|article|post)").containsMatchIn(href)
     }.distinctBy { it.absUrl("href") }.take(500)
 
@@ -134,6 +134,6 @@ object SmartWebSource {
             val paragraphs = element.select("p").size
             val links = element.select("a").size
             val hint = Regex("(?i)(content|chapter|article|read|text|body)").containsMatchIn("${element.id()} ${element.className()}")
-            element to (textLength / 10 + paragraphs * 80 + if (hint) 1500 else 0 - links * 8)
+            element to (textLength / 10 + paragraphs * 80 + (if (hint) 1500 else 0) - links * 8)
         }.maxByOrNull { it.second }?.first
 }
