@@ -62,7 +62,7 @@ object SmartWebSource {
                 bookSourceName = "智能网页源 · \${baseUrl.host}",
                 bookSourceGroup = "智能网页导入",
                 bookSourceType = 0,
-                bookUrlPattern = Regex.escape(bookUrl.substringBefore("?")),
+                bookUrlPattern = Regex.escape(bookUrl),
                 enabled = true,
                 enabledExplore = false,
                 ruleBookInfo = io.legado.app.data.entities.rule.BookInfoRule(
