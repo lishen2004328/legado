@@ -142,10 +142,12 @@ class AddToBookshelfDialog() : BaseDialogFragment(R.layout.dialog_add_to_bookshe
                 }
 
                 // 没有现成书源时，尝试对当前网页做一次结构探测并自动生成临时书源。
-                SmartWebSource.build(bookUrl)?.let { smartSource ->
+                SmartWebSource.build(bookUrl)?.let { result ->
+                    val smartSource = result.source
+                    val resolvedUrl = result.resolvedUrl
                     try {
                         appDb.bookSourceDao.insert(smartSource)
-                        getBookInfo(bookUrl, smartSource)?.let { book ->
+                        getBookInfo(resolvedUrl, smartSource)?.let { book ->
                             return@execute book
                         }
                         appDb.bookSourceDao.delete(smartSource.bookSourceUrl)
