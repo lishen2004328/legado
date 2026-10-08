@@ -112,7 +112,7 @@ object SmartWebSource {
         if (text.length !in 2..100) return@filter false
         val href = a.absUrl("href")
         if (href.isBlank() || !href.startsWith("http")) return@filter false
-        Regex("(?i)(第\\s*[0-9一二三四五六七八九十百千万]+\\s*[章节话回卷]|chapter\s*[0-9]+|番外|楔子|序章|正文)").containsMatchIn(text) ||
+        Regex("(?i)(第\\s*[0-9一二三四五六七八九十百千万]+\\s*[章节话回卷]|chapter\\s*[0-9]+|番外|楔子|序章|正文)").containsMatchIn(text) ||
             Regex("(?i)(chapter|chap|read|book|novel|article|post)").containsMatchIn(href)
     }.distinctBy { it.absUrl("href") }.take(500)
 
@@ -121,7 +121,7 @@ object SmartWebSource {
         val commonClass = links.flatMap { it.classNames() }.groupingBy { it }.eachCount()
             .filter { (_, count) -> count >= maxOf(3, links.size / 2) }.keys.firstOrNull()
         if (!commonClass.isNullOrBlank()) return "a.${commonClass.replace("\\", "\\\\").replace(" ", ".")}[href]"
-        val parent = links.take(minOf(30, links.size)).map { it.parent() }.groupingBy { it.cssSelector() }
+        val parent = links.take(minOf(30, links.size)).mapNotNull { it.parent() }.groupingBy { it.cssSelector() }
             .eachCount().maxByOrNull { it.value }?.key
         return if (!parent.isNullOrBlank()) "$parent a[href]" else "a[href]"
     }
