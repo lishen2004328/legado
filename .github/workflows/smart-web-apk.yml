@@ -23,7 +23,7 @@ jobs:
       - name: Build debug APK
         run: |
           chmod +x gradlew
-          ./gradlew :app:assembleDebug --stacktrace --no-daemon
+          ./gradlew :app:assembleDebug --stacktrace --no-daemon -PsmartWebDebugMinSdk=26
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
