@@ -18,6 +18,7 @@ import io.legado.app.databinding.DialogAddToBookshelfBinding
 import io.legado.app.exception.NoStackTraceException
 import io.legado.app.model.analyzeRule.AnalyzeUrl
 import io.legado.app.model.webBook.WebBook
+import io.legado.app.model.smartWeb.SmartWebSource
 import io.legado.app.ui.book.info.BookInfoActivity
 import io.legado.app.utils.GSON
 import io.legado.app.utils.NetworkUtils
@@ -139,7 +140,24 @@ class AddToBookshelfDialog() : BaseDialogFragment(R.layout.dialog_add_to_bookshe
                     } catch (_: Exception) {
                     }
                 }
-                throw NoStackTraceException("未找到匹配书源")
+
+                // 没有现成书源时，尝试对当前网页做一次结构探测并自动生成临时书源。
+                SmartWebSource.build(bookUrl)?.let { result ->
+                    val smartSource = result.source
+                    val resolvedUrl = result.resolvedUrl
+                    try {
+                        appDb.bookSourceDao.insert(smartSource)
+                        getBookInfo(resolvedUrl, smartSource)?.let { book ->
+                            return@execute book
+                        }
+                        appDb.bookSourceDao.delete(smartSource.bookSourceUrl)
+                    } catch (e: Exception) {
+                        runCatching { appDb.bookSourceDao.delete(smartSource.bookSourceUrl) }
+                        AppLog.put("智能网页解析失败 $bookUrl", e)
+                    }
+                }
+
+                throw NoStackTraceException("未找到匹配书源，且该网页暂时无法自动识别")
             }.onError {
                 AppLog.put("添加书籍 $bookUrl 出错", it)
                 loadErrorLiveData.postValue(it.localizedMessage)
